@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const blacklistedTokenModel = require("../models/blacklist.model");
 // require("dotenv").config();
 /**
  * @name registerUserController
@@ -17,11 +18,11 @@ async function registerUserController(req, res) {
     );
   }
   let isUserExists = await userModel.findOne({
-    $or: [username, email],
+    $or: [{username}, {email}],
   });
   if (isUserExists) {
     return (
-      res.status(400),
+      res.status(400).
       json({ message: "account already exists with same email or username" })
     );
   } else {
@@ -88,4 +89,38 @@ async function loginUserController(req, res) {
     });
   }
 }
-module.exports = { registerUserController , loginUserController};
+
+async function logoutUserController(req, res) {
+  const token = req.cookies.token;
+  if(token){
+    await blacklistedTokenModel.create({ token });
+  }
+  res.clearCookie("token");
+  res.status(200).json({
+    message: "user logged out successfully"
+  });
+}
+
+/**
+ * @name getMeController
+ * @description controller to get user details of logged in user
+ * @access Private
+ */
+async function getMeController(req, res) {
+  const user = await userModel.findById(req.user.id).select("-password");
+  if (user) {
+    res.status(200).json({
+      message: "user details fetched successfully",
+      user : {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
+  } else {
+    res.status(404).json({
+      message: "user not found"
+    });
+  }
+}
+module.exports = { registerUserController , loginUserController, logoutUserController, getMeController };
