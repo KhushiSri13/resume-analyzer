@@ -6,7 +6,7 @@ import {useState} from 'react'
 
 const Login = () => {
   const navigate = useNavigate();
-
+  
   const {loading,handleLogin} = useAuth();
 
   const [email,setEmail] = useState('');
@@ -15,6 +15,7 @@ const Login = () => {
   const handlesubmit = async (e) => {
     e.preventDefault();
     await handleLogin({email,password});
+    navigate("/");
   }
 
   if(loading){
