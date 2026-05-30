@@ -1,0 +1,17 @@
+4 layer architecture
+    UI - components, pages
+    Hook - hooks
+    State - auth.context.jsx
+          - ai.context.jsx
+    API - services -> auth.api.jsx
+
+2 way binding - Two-way binding means:
+
+when the UI changes → state updates
+and when state updates → UI also updates automatically.
+
+In React, this is usually done using:
+
+useState
+value
+onChange
