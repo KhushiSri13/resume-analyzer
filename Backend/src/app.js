@@ -11,5 +11,8 @@ app.use(cors({
 
 app.use(express.json())
 const authRouter = require("./routes/auth.route")
+const interviewRouter = require("./routes/interview.route")
+
+app.use("/api/interview" , interviewRouter)
 app.use("/api/auth" , authRouter)
 module.exports = app
