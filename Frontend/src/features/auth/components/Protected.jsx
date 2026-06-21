@@ -13,7 +13,7 @@ const Protected = ({children}) => {
         return null;
     }
   return (
-    <div>Protected</div>
+    <>{children}</>
   )
 }
 
