@@ -34,14 +34,15 @@ const interviewReportSchema = z.object({
         day: z.number().describe("The day of the week"),
         focus: z.string().describe("The area of focus for that day"),
         tasks: z.array(z.string().describe("The tasks to be completed on that day"))
-    })).describe("A day-wise preparation plan for the candidate to follow in order to improve their chances of success in the interview")
+    })).describe("A day-wise preparation plan for the candidate to follow in order to improve their chances of success in the interview"),
+    title: z.string().describe("The title of the job for which the interview report is being generated")
 })
 async function generateInterviewReport({resume, selfDescription, jobDescription}) {
     const prompt = `Generate an interview report based on the following information:\n\nResume: ${resume}\n\nSelf Description: ${selfDescription}\n\nJob Description: ${jobDescription}\n\nThe interview report should include the following sections:\n1. Match Score: A score between 0 and 100 indicating how well the candidate's resume matches the job description.\n2. Technical Questions: A list of technical questions that can be asked during the interview, along with their intentions and answers.\n3. Behavioral Questions: A list of behavioral questions that can be asked during the interview, along with their intentions and answers.\n4. Skill Gaps: A list of skill gaps that the candidate has, along with the severity of each skill gap (low, medium, high).\n5. Preparation Plan: A day-wise preparation plan for the candidate to follow in order to improve their chances of success in the interview.\n\nPlease provide the interview report in JSON format, adhering to the following schema:\n${JSON.stringify(zodToJsonSchema(interviewReportSchema), null, 2)}`;
     
     const response = await ai.models.generateContent({
-        // model: "gemini-2.5-flash",
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
+        // model: "gemini-2.0-flash",
         contents: prompt,
         config:{
             responseMimeType: "application/json",
@@ -50,44 +51,44 @@ async function generateInterviewReport({resume, selfDescription, jobDescription}
     });
     const parsed = JSON.parse(response.text);
 
-  const report = {
-    matchScore: parsed.match_score ?? parsed.matchScore,
+  // const report = {
+  //   matchScore: parsed.match_score ?? parsed.matchScore,
 
-    technicalQuestions:
-      (parsed.technical_questions ??
-        parsed.technicalQuestions ??
-        []).map(q => ({
-          question: q.question,
-          intention: q.intention,
-          answer: q.answer ?? "No answer provided"
-        })),
+  //   technicalQuestions:
+  //     (parsed.technical_questions ??
+  //       parsed.technicalQuestions ??
+  //       []).map(q => ({
+  //         question: q.question,
+  //         intention: q.intention,
+  //         answer: q.answer ?? "No answer provided"
+  //       })),
 
-    behavioralQuestions:
-      (parsed.behavioral_questions ??
-        parsed.behavioralQuestions ??
-        []).map(q => ({
-          question: q.question,
-          intention: q.intention,
-          answer: q.answer ?? "No answer provided"
-        })),
+  //   behavioralQuestions:
+  //     (parsed.behavioral_questions ??
+  //       parsed.behavioralQuestions ??
+  //       []).map(q => ({
+  //         question: q.question,
+  //         intention: q.intention,
+  //         answer: q.answer ?? "No answer provided"
+  //       })),
 
-    skillGaps:
-      (parsed.skill_gaps ??
-        parsed.skillGaps ??
-        []).map(g => ({
-          skill: g.skill,
-          severity: g.severity.toLowerCase()
-        })),
+  //   skillGaps:
+  //     (parsed.skill_gaps ??
+  //       parsed.skillGaps ??
+  //       []).map(g => ({
+  //         skill: g.skill,
+  //         severity: g.severity.toLowerCase()
+  //       })),
 
-    preparationPlan:
-      parsed.preparation_plan ??
-      parsed.preparationPlan ??
-      []
-  };
+  //   preparationPlan:
+  //     parsed.preparation_plan ??
+  //     parsed.preparationPlan ??
+  //     []
+  // };
 
-  return interviewReportSchema.parse(report);
-    // console.log(JSON.parse(response.text));
-    // return JSON.parse(response.text);
+  // return interviewReportSchema.parse(report);
+    console.log(JSON.parse(response.text));
+    return JSON.parse(response.text);
     
 }
 // module.exports = invokeGeminiAi;

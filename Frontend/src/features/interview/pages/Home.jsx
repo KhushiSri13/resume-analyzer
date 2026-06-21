@@ -1,7 +1,21 @@
-import React from 'react'
+import React,{useState,useRef} from 'react'
 import "../style/home.scss"
-
+import {useInterview} from "../interview.context.jsx"
+import {useNavigate} from 'react-router'
 const Home = () => {
+
+  const {loading,generateReport} = useInterview();
+  const [jobDescription, setJobDescription] = useState("");
+  const [selfDescription, setSelfDescription] = useState("");
+  const resumeInputRef = useRef(null);
+  
+  const navigate = useNavigate();
+  
+  const handleGenerateReport = async () =>{
+    const resumeFile = resumeInputRef.current.files[0];
+    await generateReport({jobDescription, selfDescription, resumeFile});
+    navigate(`/interview/${data._id}`);
+  }
   return (
     <main className='home'>
       {/* Header Section */}
@@ -21,6 +35,7 @@ const Home = () => {
               <label htmlFor="jobDescription">Target Job Description</label>
             </div>
             <textarea 
+            onChange={(e) => setJobDescription(e.target.value)}
               name="jobDescription" 
               id="jobDescription" 
               placeholder='Paste the job description here...'
@@ -47,7 +62,7 @@ const Home = () => {
                 <p className="file-hint">Click to upload or drag & drop</p>
                 <p className="file-size">PDF, DOC, DOCX up to 10 MB</p>
               </label>
-              <input hidden type="file" name="resume" id="resume" accept=".pdf,.doc,.docx"/>
+              <input ref={resumeInputRef} hidden type="file" name="resume" id="resume" accept=".pdf,.doc,.docx"/>
             </div>
 
             {/* Self Description */}
@@ -58,6 +73,7 @@ const Home = () => {
                 id="selfDescription" 
                 placeholder='Write a brief summary about yourself, your skills, and experience...'
                 className="self-description-textarea"
+                onChange={(e) => setSelfDescription(e.target.value)}
               ></textarea>
             </div>
 
@@ -68,8 +84,12 @@ const Home = () => {
             </div>
 
             {/* Generate Button */}
-            <button className='button primary-button'>
-              🚀 Generate My Interview Strategy
+            <button 
+              className='button primary-button'
+              onClick={handleGenerateReport}
+              disabled={loading}
+            >
+              {loading ? "Generating..." : "🚀 Generate My Interview Strategy"}
             </button>
           </div>
 
