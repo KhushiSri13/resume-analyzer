@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require( "@google/genai");
 const {z} = require("zod")
 const {zodToJsonSchema} = require("zod-to-json-schema")
-
+const puppeteer = require("puppeteer");
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY,
 });
@@ -92,5 +92,41 @@ async function generateInterviewReport({resume, selfDescription, jobDescription}
     
 }
 // module.exports = invokeGeminiAi;
+
+async function generatePdfFromHtml(htmlContent){
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    const pdfBuffer = await page.pdf({ format: 'A4', margin: { top: '20mm', bottom: '20mm', left: '20mm', right: '20mm' } });
+    await browser.close();
+    return pdfBuffer;
+}
+async function generateResumePdf({resume,selfDescription, jobDescription}){
+    
+    const resumePdfSchema = z.object({
+        html: z.string().describe("The HTML content of the resume PDF"),
+    });
+
+    const prompt = `Generate a resume based on the following information:\n\nResume: ${resume}\n\nSelf Description: ${selfDescription}\n\nJob Description: ${jobDescription}\n\n
+    the response should be in JSON object with a single field "html" which contains the HTML content of the resume PDF. The HTML should be well-structured and formatted, suitable for generating a PDF document using Puppeteer.
+    the content of resume should be in a professional format, with clear sections for the candidate's name, contact information, summary, skills, experience, and education. The HTML should be responsive and visually appealing, with appropriate use of headings, lists, and other HTML elements to enhance readability.
+    it should look like a human written resume, with a professional layout and design. The HTML should be compatible with Puppeteer for generating a PDF document.
+    you can highlight the content using some colors, but it should be professional and not too flashy. The HTML should be well-structured and formatted, suitable for generating a PDF document using Puppeteer.
+    contnt should be ats friendly, and should be optimized for applicant tracking systems (ATS) to ensure that the resume is easily readable and scannable by automated systems used by employers.`;
+
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config:{
+            responseMimeType: "application/json",
+            responseSchema: zodToJsonSchema(resumePdfSchema),
+        }
+    });
+    const jsonContent = JSON.parse(response.text);
+
+    return await generatePdfFromHtml(jsonContent.html);
+}
 module.exports = {
-    generateInterviewReport}
+    generateInterviewReport,
+    generateResumePdf
+}

@@ -4,7 +4,7 @@ import {useInterview} from "../interview.context.jsx"
 import {useNavigate} from 'react-router'
 const Home = () => {
 
-  const {loading,generateReport} = useInterview();
+  const {loading,generateReport,reports} = useInterview();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
   const resumeInputRef = useRef(null);
@@ -92,7 +92,26 @@ const Home = () => {
               {loading ? "Generating..." : "🚀 Generate My Interview Strategy"}
             </button>
           </div>
-
+          {/*recent reports list*/}
+          {
+            reports.length > 0 && (
+              <div className="recent-reports">
+                <div className="section-header">
+                  <div className="header-icon">◆</div>
+                  <label>Recent Reports</label>
+                </div>
+                <ul>
+                  {reports.map((report) => (
+                    <li key={report._id} className="report-item" onClick={() => navigate(`/interview/${report._id}`)}>
+                      <h3>{report.jobTitle || "Untitled Report"}</h3>
+                      <p className="created-date">Created on: {new Date(report.createdAt).toLocaleDateString()}</p>
+                      <p className="match-score">Match Score: {report.matchScore || 0}%</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
         </div>
       </div>
     </main>
