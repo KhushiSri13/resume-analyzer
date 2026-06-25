@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import '../style/interview.scss'
 import { useInterview } from '../interview.context.jsx'
-import {useNavigate, useParams} from 'react-router'
+import { useParams } from 'react-router'
+
 const Interview = () => {
   const [activeTab, setActiveTab] = useState('technical')
   const [expandedQuestions, setExpandedQuestions] = useState({})
-  const { report,getReportById, loading } = useInterview()
-  const {interviewId} = useParams()
+  const { report, getReportById, getResumePdf, loading } = useInterview()
+  const { interviewId } = useParams()
 
   useEffect(() => {
     if (interviewId) {
@@ -24,6 +25,14 @@ const Interview = () => {
       ...prev,
       [index]: !prev[index]
     }))
+  }
+
+  const handleDownloadResume = async () => {
+    const reportId = report?._id || report?.id || interviewId
+
+    if (reportId) {
+      await getResumePdf(reportId)
+    }
   }
 
   const renderContent = () => {
@@ -120,6 +129,21 @@ const Interview = () => {
             onClick={() => setActiveTab('roadmap')}
           >
             Road Map
+          </button>
+          <button
+            className="nav-item download-resume-btn"
+            onClick={handleDownloadResume}
+            disabled={loading}
+          >
+            <span className="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M12 3v10" strokeLinecap="round" />
+                <path d="m8 9 4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 15v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" strokeLinecap="round" />
+                <path d="M8 3h4" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span>Download Resume</span>
           </button>
         </nav>
       </aside>
