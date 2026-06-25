@@ -1,6 +1,6 @@
 import React,{useState,useRef} from 'react'
 import "../style/home.scss"
-import {useInterview} from "../interview.context.jsx"
+import {useInterview} from "../hook/useInterview"
 import {useNavigate} from 'react-router'
 const Home = () => {
 
@@ -11,11 +11,17 @@ const Home = () => {
   
   const navigate = useNavigate();
   
+  // const handleGenerateReport = async () =>{
+  //   const resumeFile = resumeInputRef.current.files[0];
+  //   await generateReport({jobDescription, selfDescription, resumeFile});
+  //   navigate(`/interview/${data._id}`);
+  // }
   const handleGenerateReport = async () =>{
     const resumeFile = resumeInputRef.current.files[0];
     await generateReport({jobDescription, selfDescription, resumeFile});
     navigate(`/interview/${data._id}`);
-  }
+}
+
   return (
     <main className='home'>
       {/* Header Section */}

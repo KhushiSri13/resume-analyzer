@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import '../style/interview.scss'
-import { useInterview } from '../interview.context.jsx'
+import { useInterview } from '../hook/useInterview'
 import { useParams } from 'react-router'
 
 const Interview = () => {
