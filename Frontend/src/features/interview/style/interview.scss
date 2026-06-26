@@ -405,6 +405,45 @@
             }
         }
 
+        .download-loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 6, 8, 0.72);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+            backdrop-filter: blur(6px);
+        }
+
+        .download-loading-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.3);
+        }
+
+        .spinner {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         /* Skill Gaps Section */
         .skillgaps-container {
             display: flex;
@@ -663,4 +702,10 @@
             }
         }
     }
+}
+
+.loading-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

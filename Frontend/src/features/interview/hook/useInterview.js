@@ -2,6 +2,7 @@ import {getAllInterviewReports,generateInterviewReport,getInterviewReportById, g
 import {useContext,useEffect} from "react"
 import { InterviewContext } from "../interview.context"
 import {useParams} from "react-router"
+import { useFlash } from "../../../components/FlashProvider"
 export const useInterview = () =>{
     const context = useContext(InterviewContext);
     const {interviewId} = useParams();
@@ -9,14 +10,17 @@ export const useInterview = () =>{
         throw new Error("useInterview must be used within an InterviewProvider");
     }
     const {loading, setLoading, report, setReport, reports, setReports} = context;
+    const { showFlash } = useFlash();
     const generateReport = async ({jobDescription,selfDescription,resumeFile}) =>{
         setLoading(true);
         let response = null;
         try{
             response = await generateInterviewReport({jobDescription, selfDescription, resumeFile});
             setReport(response.interviewReport);
+            showFlash('Interview report generated successfully.', 'success');
         } catch (error) {
             console.error("Error generating interview report:", error);
+            showFlash(error?.response?.data?.message || 'Failed to generate interview report.', 'error');
         } finally {
             setLoading(false);
         }
@@ -30,6 +34,7 @@ export const useInterview = () =>{
             setReport(response.interviewReport);
         } catch (error) {
             console.error("Error fetching interview report:", error);
+            showFlash('Unable to load this interview report.', 'error');
         } finally {
             setLoading(false);
         }
@@ -43,6 +48,7 @@ export const useInterview = () =>{
             setReports(response.interviewReports);
         } catch (error) {
             console.error("Error fetching interview reports:", error);
+            showFlash('Unable to load recent reports.', 'error');
         } finally {
             setLoading(false);
         }
@@ -51,22 +57,24 @@ export const useInterview = () =>{
 
     const getResumePdf = async (interviewReportId) => {
         setLoading(true);
-        let response = null;
-        try{
-            response = await generateResumePdf({interviewReportId})
-            const url = window.URL.createObjectURL(new Blob([response],{type:"application/pdf"}))
-            const link = document.createElement("a")
+        try {
+            const blob = await generateResumePdf(interviewReportId);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
             link.href = url;
-            link.setAttribute("download" , `resume_${interviewReportId}.pdf`)
-            document.body.appendChild(link)
+            link.download = `resume_${interviewReportId}.pdf`;
+            document.body.appendChild(link);
             link.click();
-        }
-        catch(error){
-            console.log(error)
-        } finally{
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            showFlash('AI-generated resume downloaded successfully.', 'success');
+        } catch (error) {
+            console.error(error);
+            showFlash('AI-generated resume failed to download. Please try again.', 'error');
+        } finally {
             setLoading(false);
         }
-    }   
+    };
     
     useEffect(() => {
         if (interviewId) {

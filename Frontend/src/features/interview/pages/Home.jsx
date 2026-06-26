@@ -7,6 +7,8 @@ const Home = () => {
   const {loading,generateReport,reports} = useInterview();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
+  const [selectedResumeName, setSelectedResumeName] = useState("");
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
   const resumeInputRef = useRef(null);
   
   const navigate = useNavigate();
@@ -16,11 +18,30 @@ const Home = () => {
   //   await generateReport({jobDescription, selfDescription, resumeFile});
   //   navigate(`/interview/${data._id}`);
   // }
-  const handleGenerateReport = async () =>{
+  const handleResumeChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      setSelectedResumeName(file.name);
+      setIsUploadingResume(true);
+      window.setTimeout(() => setIsUploadingResume(false), 900);
+    }
+  };
+
+  const handleGenerateReport = async () => {
     const resumeFile = resumeInputRef.current.files[0];
-    await generateReport({jobDescription, selfDescription, resumeFile});
-    navigate(`/interview/${data._id}`);
-}
+    setIsUploadingResume(true);
+
+    try {
+      const generatedReport = await generateReport({jobDescription, selfDescription, resumeFile});
+
+      if (generatedReport?._id) {
+        navigate(`/interview/${generatedReport._id}`);
+      }
+    } finally {
+      setIsUploadingResume(false);
+    }
+  }
 
   return (
     <main className='home'>
@@ -62,13 +83,19 @@ const Home = () => {
             {/* Resume Upload */}
             <div className="input-group resume-upload">
               <p className="label-text">Resume <span className="highlight-note">use resume and self description together for best results</span></p>
-              <label className="file-label" htmlFor="resume">
-                <div className="upload-icon">📤</div>
-                <p>Upload Resume</p>
-                <p className="file-hint">Click to upload or drag & drop</p>
+              <label className={`file-label ${isUploadingResume ? 'uploading' : selectedResumeName ? 'uploaded' : ''}`} htmlFor="resume">
+                <div className="upload-icon">{isUploadingResume ? '⏳' : selectedResumeName ? '✅' : '📤'}</div>
+                <p>{isUploadingResume ? 'Uploading resume...' : selectedResumeName ? 'Resume ready' : 'Upload Resume'}</p>
+                <p className="file-hint">
+                  {isUploadingResume
+                    ? 'Preparing your file for analysis'
+                    : selectedResumeName
+                      ? selectedResumeName
+                      : 'Click to upload or drag & drop'}
+                </p>
                 <p className="file-size">PDF, DOC, DOCX up to 10 MB</p>
               </label>
-              <input ref={resumeInputRef} hidden type="file" name="resume" id="resume" accept=".pdf,.doc,.docx"/>
+              <input ref={resumeInputRef} hidden type="file" name="resume" id="resume" accept=".pdf,.doc,.docx" onChange={handleResumeChange} />
             </div>
 
             {/* Self Description */}

@@ -6,6 +6,7 @@ import { useParams } from 'react-router'
 const Interview = () => {
   const [activeTab, setActiveTab] = useState('technical')
   const [expandedQuestions, setExpandedQuestions] = useState({})
+  const [isDownloadingResume, setIsDownloadingResume] = useState(false)
   const { report, getReportById, getResumePdf, loading } = useInterview()
   const { interviewId } = useParams()
 
@@ -15,7 +16,7 @@ const Interview = () => {
     }
   }, [interviewId])
 
-  if(loading || !report) {
+  if((loading && !isDownloadingResume) || !report) {
     return <main className="loading-container">
       <h1>Loading your interview report...</h1>
     </main>
@@ -31,7 +32,12 @@ const Interview = () => {
     const reportId = report?._id || report?.id || interviewId
 
     if (reportId) {
-      await getResumePdf(reportId)
+      setIsDownloadingResume(true)
+      try {
+        await getResumePdf(reportId)
+      } finally {
+        setIsDownloadingResume(false)
+      }
     }
   }
 
@@ -108,6 +114,14 @@ const Interview = () => {
 
   return (
     <main className="interview">
+      {isDownloadingResume && (
+        <div className="download-loading-overlay">
+          <div className="download-loading-card">
+            <div className="spinner" />
+            <h3>Loading...</h3>
+          </div>
+        </div>
+      )}
       {/* Left Sidebar */}
       <aside className="interview-sidebar">
         <div className="sections-header">SECTIONS</div>
