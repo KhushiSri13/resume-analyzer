@@ -24,7 +24,7 @@ const Landing = () => {
   return (
     <main className="home landing-page">
       <div className="header">
-        <p className="eyebrow">Resume Analyzer</p>
+        <p className="eyebrow">Career Craft</p>
         <h1>
           Build a smarter interview plan from your <span className="highlight">resume</span>
         </h1>
@@ -47,7 +47,7 @@ const Landing = () => {
         <div className="landing-card__content">
           <h2>What this application does</h2>
           <p>
-            Resume Analyzer helps job seekers combine career experience, resume content, and a target role
+            Career Craft helps job seekers combine career experience, resume content, and a target role
             to create a focused interview strategy. It highlights how well you align with the position and
             suggests the next steps to strengthen your profile.
           </p>
