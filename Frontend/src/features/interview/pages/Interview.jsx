@@ -27,7 +27,11 @@ const Interview = () => {
       [index]: !prev[index]
     }))
   }
-
+  if(isDownloadingResume){
+    return <main className="loading-container">
+      <h1>Downloading your resume...</h1>
+    </main>
+  }
   const handleDownloadResume = async () => {
     const reportId = report?._id || report?.id || interviewId
 
